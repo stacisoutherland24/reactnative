@@ -6,7 +6,6 @@ import {
   StyleSheet,
   Switch,
   Button,
-  Modal,
   Alert,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
@@ -26,12 +25,44 @@ const ReservationScreen = () => {
     setDate(currentDate);
   };
 
+  const handleReservation = () => {
+    const message = `Number of Campers: ${campers}
+                            \nHike-In? ${hikeIn}
+                            \nDate: ${date.toLocaleDateString("en-US")}`;
+    Alert.alert(
+      "Begin Search?",
+      message,
+      [
+        {
+          text: "Cancel",
+          onPress: () => {
+            console.log("Reservation Search Canceled");
+            resetForm();
+          },
+          style: "cancel",
+        },
+        {
+          text: "OK",
+          onPress: () => {
+            presentLocalNotification(date.toLocaleDateString("en-US"));
+            resetForm();
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+    console.log("campers:", campers);
+    console.log("hikeIn:", hikeIn);
+    console.log("date:", date);
+  };
+
   const resetForm = () => {
     setCampers(1);
     setHikeIn(false);
     setDate(new Date());
     setShowCalendar(false);
   };
+
   const presentLocalNotification = async (reservationDate) => {
     const sendNotification = () => {
       Notifications.setNotificationHandler({
@@ -107,33 +138,7 @@ const ReservationScreen = () => {
         )}
         <View style={styles.formRow}>
           <Button
-            onPress={() =>
-              Alert.alert(
-                "Begin Search?",
-
-                `Number of Campers: ${campers} \n\nHike-In? ${hikeIn} \n\nDate: ${date.toLocaleDateString(
-                  "en-US"
-                )}`,
-
-                [
-                  {
-                    text: "Cancel",
-                    style: "cancel",
-                    onPress: () => resetForm(),
-                  },
-                  {
-                    text: "OK",
-                    onPress: () => {
-                      presentLocalNotification(
-                        date.toLocaleDateString("en-US")
-                      );
-                      resetForm();
-                    },
-                  },
-                ],
-                { cancelable: false }
-              )
-            }
+            onPress={() => handleReservation()}
             title="Search Availability"
             color="#5637DD"
             accessibilityLabel="Tap me to search for available campsites to reserve"
